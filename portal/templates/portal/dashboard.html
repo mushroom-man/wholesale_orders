@@ -1,0 +1,73 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Dashboard - Mushroom Orders{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 1.5rem;">Welcome, {{ client.business_name }}</h1>
+
+<div class="card">
+    <h2>Quick Actions</h2>
+    <a href="{% url 'portal:new_order' %}" class="btn">Place New Order</a>
+    <a href="{% url 'portal:standing_orders' %}" class="btn btn-secondary" style="margin-left: 0.5rem;">Manage Standing Orders</a>
+</div>
+
+<div class="card">
+    <h2>Recent Orders</h2>
+    {% if recent_orders %}
+    <table>
+        <thead>
+            <tr>
+                <th>Delivery Date</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_orders %}
+            <tr>
+                <td>{{ order.delivery_date }}</td>
+                <td>{{ order.get_order_type_display }}</td>
+                <td><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                <td>${{ order.total_price }}</td>
+                <td><a href="{% url 'portal:order_detail' order.id %}">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No orders yet. <a href="{% url 'portal:new_order' %}">Place your first order</a>.</p>
+    {% endif %}
+</div>
+
+{% if standing_orders %}
+<div class="card">
+    <h2>Active Standing Orders</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Products</th>
+                <th>Priority</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for so in standing_orders %}
+            <tr>
+                <td>
+                    {% for line in so.lines.all %}
+                    {{ line.product.name }} ({{ line.quantity_kg }} kg){% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ so.priority }}</td>
+                <td>{{ so.start_date }}</td>
+                <td>{{ so.end_date|default:"Ongoing" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

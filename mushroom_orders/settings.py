@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "clients",
     "products",
+    "orders",
+    "portal",
 ]
 
 MIDDLEWARE = [
@@ -109,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Australia/Melbourne'
 
 USE_I18N = True
 
@@ -124,3 +126,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (Uploaded images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+# Login settings
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+
+# Admin site customization
+ADMIN_SITE_HEADER = "Markwood Mushrooms"
+ADMIN_SITE_TITLE = "Markwood Mushrooms Admin"
+ADMIN_INDEX_TITLE = "Administration"

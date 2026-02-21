@@ -4,11 +4,11 @@ from .models import Product, FarmersBoxPreference
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'image_thumbnail', 'base_price_per_kg', 'active', 'seasonal_occasional']
-    list_filter = ['active', 'seasonal_occasional']
+    list_display = ['name', 'image_thumbnail', 'base_price_per_kg', 'forecast_kg', 'available', 'active', 'seasonal_occasional']
+    list_filter = ['available', 'active', 'seasonal_occasional']
     search_fields = ['name']
-    list_editable = ['active']
-    fields = ['name', 'description', 'image', 'image_preview', 'base_price_per_kg', 'minimum_order_kg', 'active', 'seasonal_occasional']
+    list_editable = ['available', 'active', 'forecast_kg']
+    fields = ['name', 'description', 'image', 'image_preview', 'base_price_per_kg', 'minimum_order_kg', 'forecast_kg', 'available', 'active', 'seasonal_occasional']
     readonly_fields = ['image_preview']
     
     def image_thumbnail(self, obj):

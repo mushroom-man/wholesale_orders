@@ -1,0 +1,70 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Order {{ order.id }} - Mushroom Orders{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 1.5rem;">Order #{{ order.id }}</h1>
+
+<div class="card">
+    <h2>Order Details</h2>
+    <table style="max-width: 400px;">
+        <tr>
+            <td><strong>Delivery Date</strong></td>
+            <td>{{ order.delivery_date|date:"l, d F Y" }}</td>
+        </tr>
+        <tr>
+            <td><strong>Order Type</strong></td>
+            <td>{{ order.get_order_type_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Status</strong></td>
+            <td><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+        </tr>
+        <tr>
+            <td><strong>Placed</strong></td>
+            <td>{{ order.placed_at|date:"d M Y, H:i" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Ordered</th>
+                <th>Delivered</th>
+                <th>Price/kg</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in order.lines.all %}
+            <tr>
+                <td>{{ line.product.name }}</td>
+                <td>{{ line.quantity_ordered_kg }} kg</td>
+                <td>{% if line.quantity_delivered_kg %}{{ line.quantity_delivered_kg }} kg{% else %}-{% endif %}</td>
+                <td>${{ line.price_per_kg }}</td>
+                <td>${{ line.line_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4" style="text-align: right;">Total:</th>
+                <th>${{ order.total_price }}</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+{% if order.notes %}
+<div class="card">
+    <h2>Order Notes</h2>
+    <p>{{ order.notes }}</p>
+</div>
+{% endif %}
+
+<a href="{% url 'portal:order_history' %}" class="btn btn-secondary">Back to Order History</a>
+{% endblock %}

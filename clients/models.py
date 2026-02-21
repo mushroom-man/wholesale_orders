@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Client(models.Model):
     DELIVERY_CHOICES = [
@@ -17,6 +18,7 @@ class Client(models.Model):
         ('ACT', 'Australian Capital Territory'),
     ]
     
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='client')
     business_name = models.CharField(max_length=200)
     login_email = models.EmailField(unique=True)
     delivery_day = models.CharField(max_length=10, choices=DELIVERY_CHOICES)

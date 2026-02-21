@@ -1,0 +1,42 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Standing Orders - Mushroom Orders{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 1.5rem;">Standing Orders</h1>
+
+<div class="card">
+    {% if standing_orders %}
+    <table>
+        <thead>
+            <tr>
+                <th>Products</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Priority</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for so in standing_orders %}
+            <tr>
+                <td>
+                    {% for line in so.lines.all %}
+                    {{ line.product.name }} ({{ line.quantity_kg }} kg){% if not forloop.last %}<br>{% endif %}
+                    {% endfor %}
+                </td>
+                <td>{{ so.start_date|date:"d M Y" }}</td>
+                <td>{{ so.end_date|date:"d M Y"|default:"Ongoing" }}</td>
+                <td>{% if so.active %}<span style="color: #2e7d32;">Active</span>{% else %}<span style="color: #757575;">Paused</span>{% endif %}</td>
+                <td>{{ so.priority }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No standing orders set up. Contact us to arrange a recurring order.</p>
+    {% endif %}
+</div>
+
+<a href="{% url 'portal:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}

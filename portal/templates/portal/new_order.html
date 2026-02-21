@@ -1,0 +1,129 @@
+{% extends 'portal/base.html' %}
+{% load tz %}
+
+{% block title %}New Order - Mushroom Orders{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 1.5rem;">Place New Order</h1>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+            <h2 style="margin-bottom: 0;">Delivery: {{ next_delivery|date:"l, d F Y" }}</h2>
+            <p style="color: #666; margin-top: 0.25rem;">Your delivery day is {{ client.get_delivery_day_display }}.</p>
+        </div>
+        <div style="text-align: right; font-size: 0.875rem; color: #666;">
+            Stock levels as of {{ now|time:"g:i A" }}<br>
+            <a href="{% url 'portal:new_order' %}" style="color: #2e7d32;">↻ Refresh</a>
+        </div>
+    </div>
+    
+    <form method="post" id="orderForm">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Image</th>
+                    <th>Product</th>
+                    <th>Price/kg</th>
+                    <th style="width: 120px;">Status</th>
+                    <th style="width: 150px;">Quantity (kg)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in product_list %}
+                <tr {% if item.status == 'unavailable' %}style="opacity: 0.5;"{% endif %}>
+                    <td>
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" width="60" height="60" style="object-fit: cover; border-radius: 4px;">
+                        {% else %}
+                        <div style="width: 60px; height: 60px; background: #eee; border-radius: 4px;"></div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ item.product.name }}</strong>
+                        {% if item.product.seasonal_occasional %}<span style="color: #e65100; font-size: 0.875rem;"> (Seasonal)</span>{% endif %}
+                        {% if item.product.description %}<br><small style="color: #666;">{{ item.product.description }}</small>{% endif %}
+                    </td>
+                    <td>${{ item.product.base_price_per_kg }}</td>
+                    <td>
+                        {% if item.status == 'available' %}
+                        <span style="color: #2e7d32; font-weight: bold;">Available</span>
+                        {% elif item.status == 'limited' %}
+                        <span style="color: #e65100; font-weight: bold;">Limited Stock</span>
+                        {% else %}
+                        <span style="color: #c62828; font-weight: bold;">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status == 'unavailable' %}
+                        <input type="number" value="0" disabled
+                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: #f5f5f5;">
+                        {% else %}
+                        <input type="number" name="qty_{{ item.product.id }}" value="0" min="0" step="0.5"
+                               class="qty-input {% if item.status == 'limited' %}limited-stock{% endif %}"
+                               style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 1.5rem;">
+            <label for="notes" style="display: block; margin-bottom: 0.5rem;"><strong>Order Notes</strong> (optional)</label>
+            <textarea id="notes" name="notes" rows="3" 
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px;"
+                      placeholder="Any special requests or delivery instructions..."></textarea>
+        </div>
+        
+        <div style="margin-top: 1.5rem;">
+            <button type="submit" class="btn">Submit Order</button>
+            <a href="{% url 'portal:dashboard' %}" class="btn btn-secondary" style="margin-left: 0.5rem;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<!-- Limited Stock Warning Modal -->
+<div id="limitedStockModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="background: white; max-width: 500px; margin: 10% auto; padding: 2rem; border-radius: 8px;">
+        <h3 style="color: #e65100; margin-bottom: 1rem;">⚠️ Limited Stock Notice</h3>
+        <p>Some items you've selected have limited stock this week. Demand has been strong, and while we will do our utmost to provide the required amount, there may be limitations.</p>
+        <p style="margin-top: 1rem;">If we cannot fulfil your full order, we will adjust the price at packing time and inform you by email.</p>
+        <div style="margin-top: 1.5rem; text-align: right;">
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-right: 0.5rem;">Cancel</button>
+            <button onclick="submitOrder()" class="btn">I Understand, Place Order</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var hasLimitedItems = false;
+    
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        // Check if any limited stock items have quantity > 0
+        var limitedInputs = document.querySelectorAll('.limited-stock');
+        hasLimitedItems = false;
+        
+        limitedInputs.forEach(function(input) {
+            if (parseFloat(input.value) > 0) {
+                hasLimitedItems = true;
+            }
+        });
+        
+        if (hasLimitedItems) {
+            e.preventDefault();
+            document.getElementById('limitedStockModal').style.display = 'block';
+        }
+    });
+    
+    function closeModal() {
+        document.getElementById('limitedStockModal').style.display = 'none';
+    }
+    
+    function submitOrder() {
+        document.getElementById('limitedStockModal').style.display = 'none';
+        document.getElementById('orderForm').submit();
+    }
+</script>
+{% endblock %}

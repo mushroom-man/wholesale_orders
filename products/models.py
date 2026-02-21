@@ -8,6 +8,8 @@ class Product(models.Model):
     minimum_order_kg = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     active = models.BooleanField(default=True)
     seasonal_occasional = models.BooleanField(default=False)
+    available = models.BooleanField(default=True, help_text="Uncheck if not currently being grown")
+    forecast_kg = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Expected kg available per week")
     
     class Meta:
         ordering = ['name']
