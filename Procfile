@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn mushroom_orders.wsgi
+web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn mushroom_orders.wsgi --bind 0.0.0.0:$PORT
